@@ -11,7 +11,7 @@
             href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
             rel="stylesheet"
         />
-        <link rel="stylesheet" href="./assets/css/styles.css" />
+        <link rel="stylesheet" href="./assets/css/styles.css?v=20260901.3" />
         <link
             rel="icon"
             href="./assets/img/favicon.svg?v=2"
@@ -41,8 +41,6 @@
 
     <body>
         <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
-        <div class="ambient-background" aria-hidden="true"></div>
-
         <header class="site-header">
             <div class="menu-content">
                 <a href="./index.html#hero" id="titulo" aria-label="Ir para o início">
@@ -50,7 +48,11 @@
                     <span>Victor Pedro</span>
                 </a>
 
-                <nav class="main-nav" aria-label="Navegação principal">
+                <nav
+                    id="main-navigation"
+                    class="main-nav"
+                    aria-label="Navegação principal"
+                >
                     <ul class="menu-list">
                         <li><a href="./index.html#hero">Início</a></li>
                         <li><a href="./index.html#featured">Destaques</a></li>
@@ -81,6 +83,18 @@
                     >
                         <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
                     </svg>
+                </button>
+
+                <button
+                    class="nav-toggle"
+                    type="button"
+                    aria-controls="main-navigation"
+                    aria-expanded="false"
+                    aria-label="Abrir menu"
+                >
+                    <span></span>
+                    <span></span>
+                    <span></span>
                 </button>
             </div>
         </header>
@@ -116,6 +130,6 @@
             <span>© <span id="current-year">2026</span></span>
         </footer>
 
-        <script src="./assets/js/script.js" defer></script>
+        <script src="./assets/js/script.js?v=20260901.3" defer></script>
     </body>
 </html>
