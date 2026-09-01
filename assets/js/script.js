@@ -1,373 +1,705 @@
-//Selecionar a seção about
+const GITHUB_USER = "victorpgms";
+const MAX_PROJETOS_RECENTES = 9;
 
-const about = document.querySelector("#about");
+/*
+ * CONFIGURAÇÃO DOS PRINCIPAIS PROJETOS
+ * -------------------------------------
+ * Para trocar um destaque, altere somente "usuario" e "repositorio".
+ * Quando você tiver a imagem no ImageKit, cole o link no campo "imagem".
+ * Enquanto o campo estiver vazio, o card usa o fundo abstrato do portfólio.
+ */
+const PROJETOS_PRINCIPAIS = [
+    {
+        usuario: "victorpgms",
+        repositorio: "blogpessoal_react",
+        imagem: "https://ik.imagekit.io/vpgms/BlogPessoal/projetos%20principais/Captura%20de%20tela%202026-08-31%201819392.png",
+    },
+    {
+        usuario: "VidaConecta",
+        repositorio: "ConectaLife_React",
+        imagem: "https://ik.imagekit.io/vpgms/BlogPessoal/projetos%20principais/Captura%20de%20tela%202026-08-31%20204446.png",
+    },
+    {
+        usuario: "victorpgms",
+        repositorio: "projeto-fintech",
+        imagem: "https://ik.imagekit.io/vpgms/BlogPessoal/projetos%20principais/Captura%20de%20tela%202026-08-31%20205907.png",
+    },
+    
+    {
+        usuario: "victorpgms",
+        repositorio: "gerar-qr-code",
+        imagem: "https://ik.imagekit.io/vpgms/BlogPessoal/projetos%20principais/Captura%20de%20tela%202026-08-31%20204007.png?updatedAt=1788219673528",
+    },
+];
 
-const swiperWraper = document.querySelector(".swiper-wrapper");
+const ICONES_LINGUAGENS = {
+    JavaScript: "javascript",
+    TypeScript: "typescript",
+    Python: "python",
+    Java: "java",
+    HTML: "html",
+    CSS: "css",
+    PHP: "php",
+    "C#": "csharp",
+    Go: "go",
+    Kotlin: "kotlin",
+    Swift: "swift",
+    C: "c",
+    "C++": "c_plus",
+    GitHub: "github",
+};
 
-// Formulário
+const featuredContainer = document.querySelector("#featured-projects");
+const swiperWrapper = document.querySelector(".projects-swiper .swiper-wrapper");
 const formulario = document.querySelector("#formulario");
+const themeToggle = document.querySelector(".theme-toggle");
+const themeColor = document.querySelector('meta[name="theme-color"]');
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-// Expressão Regular de validação do e-mail
-const emailRegex = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+let projectsSwiper;
 
-//função para contruir a seção abou
-async function getAboutGithub() {
+function escapeHTML(value = "") {
+    return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+}
+
+function truncar(texto = "", limite = 115) {
+    return texto.length > limite
+        ? `${texto.substring(0, limite).trim()}…`
+        : texto;
+}
+
+function formatarNome(nome = "") {
+    return nome
+        .replace(/[-_]/g, " ")
+        .replace(/\s+t[a-z0-9]+$/i, "")
+        .replace(/\b\w/g, (letra) => letra.toUpperCase());
+}
+
+function getLanguageIcon(linguagem = "GitHub") {
+    const iconName =
+        ICONES_LINGUAGENS[linguagem] || ICONES_LINGUAGENS.GitHub;
+
+    return `./assets/icons/languages/${iconName}.svg`;
+}
+
+function getTags(repositorio, limite = 3) {
+    const topics = Array.isArray(repositorio.topics)
+        ? repositorio.topics.slice(0, limite)
+        : [];
+    const tags = topics.length
+        ? topics
+        : [repositorio.language || "GitHub"];
+
+    return tags
+        .map((tag) => `<span class="tag">${escapeHTML(tag)}</span>`)
+        .join("");
+}
+
+function formatarData(data) {
+    if (!data) return "Recente";
+
+    return new Intl.DateTimeFormat("pt-BR", {
+        month: "short",
+        year: "numeric",
+    })
+        .format(new Date(data))
+        .replace(".", "");
+}
+
+async function fetchGitHub(url) {
+    const resposta = await fetch(url, {
+        headers: {
+            Accept: "application/vnd.github+json",
+        },
+    });
+
+    if (!resposta.ok) {
+        throw new Error(`GitHub respondeu com status ${resposta.status}`);
+    }
+
+    return resposta.json();
+}
+
+function updateThemeButton(theme) {
+    if (!themeToggle) return;
+
+    const isDark = theme === "dark";
+    themeToggle.setAttribute(
+        "aria-label",
+        isDark ? "Ativar modo claro" : "Ativar modo escuro",
+    );
+    themeToggle.title = isDark ? "Ativar modo claro" : "Ativar modo escuro";
+
+    if (themeColor) {
+        themeColor.content = isDark ? "#111110" : "#f7f7f5";
+    }
+}
+
+function initializeTheme() {
+    const activeTheme = document.documentElement.dataset.theme || "light";
+    updateThemeButton(activeTheme);
+
+    themeToggle?.addEventListener("click", () => {
+        const nextTheme =
+            document.documentElement.dataset.theme === "dark"
+                ? "light"
+                : "dark";
+
+        document.documentElement.dataset.theme = nextTheme;
+        updateThemeButton(nextTheme);
+
+        try {
+            localStorage.setItem("portfolio-theme", nextTheme);
+        } catch (error) {
+            console.warn("Não foi possível salvar a preferência de tema.");
+        }
+    });
+}
+
+function updateBackgroundPosition(clientX, clientY) {
+    const x = Math.round((clientX / window.innerWidth) * 100);
+    const y = Math.round((clientY / window.innerHeight) * 100);
+
+    document.documentElement.style.setProperty("--pointer-x", `${x}%`);
+    document.documentElement.style.setProperty("--pointer-y", `${y}%`);
+}
+
+function initializeInteractiveBackground() {
+    if (reduceMotion.matches) return;
+
+    let frameId;
+
+    const scheduleUpdate = (clientX, clientY) => {
+        window.cancelAnimationFrame(frameId);
+        frameId = window.requestAnimationFrame(() => {
+            updateBackgroundPosition(clientX, clientY);
+        });
+    };
+
+    window.addEventListener("pointermove", (event) => {
+        scheduleUpdate(event.clientX, event.clientY);
+    });
+
+    window.addEventListener(
+        "touchmove",
+        (event) => {
+            const touch = event.touches[0];
+            if (touch) scheduleUpdate(touch.clientX, touch.clientY);
+        },
+        { passive: true },
+    );
+}
+
+function initializePointerTrail() {
+    if (reduceMotion.matches) return;
+
+    const trail = document.createElement("div");
+    trail.className = "pointer-trail";
+    trail.setAttribute("aria-hidden", "true");
+
+    const dots = Array.from({ length: 12 }, (_, index) => {
+        const dot = document.createElement("span");
+        dot.className = "pointer-trail__dot";
+        dot.style.width = `${Math.max(5, 9 - index * 0.25)}px`;
+        dot.style.height = dot.style.width;
+        trail.appendChild(dot);
+        return dot;
+    });
+
+    document.body.appendChild(trail);
+
+    let dotIndex = 0;
+    let lastX = -100;
+    let lastY = -100;
+    let lastTime = 0;
+
+    window.addEventListener(
+        "pointermove",
+        (event) => {
+            if (!event.isPrimary) return;
+
+            const now = performance.now();
+            const distance = Math.hypot(
+                event.clientX - lastX,
+                event.clientY - lastY,
+            );
+
+            if (distance < 11 && now - lastTime < 36) return;
+
+            const dot = dots[dotIndex];
+            dotIndex = (dotIndex + 1) % dots.length;
+            lastX = event.clientX;
+            lastY = event.clientY;
+            lastTime = now;
+
+            dot.getAnimations().forEach((animation) => animation.cancel());
+            dot.style.left = `${event.clientX}px`;
+            dot.style.top = `${event.clientY}px`;
+
+            dot.animate(
+                [
+                    {
+                        opacity: event.pointerType === "touch" ? 0.3 : 0.38,
+                        transform: "translate(-50%, -50%) scale(1)",
+                    },
+                    {
+                        opacity: 0,
+                        transform: "translate(-50%, -50%) scale(0.2)",
+                    },
+                ],
+                {
+                    duration: event.pointerType === "touch" ? 820 : 620,
+                    easing: "cubic-bezier(0.16, 0.7, 0.3, 1)",
+                    fill: "forwards",
+                },
+            );
+        },
+        { passive: true },
+    );
+}
+
+function initializeHeader() {
+    const header = document.querySelector(".site-header");
+    if (!header) return;
+
+    const updateHeader = () => {
+        header.classList.toggle("is-scrolled", window.scrollY > 12);
+    };
+
+    updateHeader();
+    window.addEventListener("scroll", updateHeader, { passive: true });
+}
+
+async function getAboutGitHub() {
+    const avatar = document.querySelector("#profile-avatar");
+    const profileLink = document.querySelector("#github-profile-link");
+    const repositoriesCount = document.querySelector("#repositories-count");
+    const followersCount = document.querySelector("#followers-count");
+
+    if (!avatar && !repositoriesCount && !followersCount) return;
+
     try {
-        const resposta = await fetch("https://api.github.com/users/victorpgms");
+        const perfil = await fetchGitHub(
+            `https://api.github.com/users/${GITHUB_USER}`,
+        );
 
-        const perfil = await resposta.json();
+        if (avatar && perfil.avatar_url) {
+            avatar.src = perfil.avatar_url;
+            avatar.alt = `Foto de perfil de ${perfil.name || "Victor Pedro"}`;
+        }
 
-        //console.log(perfil);
+        if (profileLink && perfil.html_url) {
+            profileLink.href = perfil.html_url;
+        }
 
-        about.innerHTML = "";
+        if (repositoriesCount) {
+            repositoriesCount.textContent = perfil.public_repos ?? "—";
+        }
 
-        about.innerHTML = `
-        <!-- Imagem -->
-                <figure class="about-image">
+        if (followersCount) {
+            followersCount.textContent = perfil.followers ?? "—";
+        }
+    } catch (error) {
+        console.warn("Os dados complementares do perfil não foram carregados.", error);
+    }
+}
+
+function createFallbackRepository(configuracao) {
+    return {
+        name: configuracao.repositorio,
+        full_name: `${configuracao.usuario}/${configuracao.repositorio}`,
+        description: "Projeto em destaque disponível no GitHub.",
+        html_url: `https://github.com/${configuracao.usuario}/${configuracao.repositorio}`,
+        homepage: "",
+        language: "GitHub",
+        topics: [],
+    };
+}
+
+async function getFeaturedRepository(configuracao) {
+    try {
+        const repositorio = await fetchGitHub(
+            `https://api.github.com/repos/${configuracao.usuario}/${configuracao.repositorio}`,
+        );
+
+        return { ...repositorio, configuracao };
+    } catch (error) {
+        console.warn(
+            `O destaque ${configuracao.usuario}/${configuracao.repositorio} usará dados locais.`,
+            error,
+        );
+
+        return {
+            ...createFallbackRepository(configuracao),
+            configuracao,
+        };
+    }
+}
+
+function createFeaturedCard(repositorio, index) {
+    const article = document.createElement("article");
+    const linguagem = repositorio.language || "GitHub";
+    const descricao = truncar(
+        repositorio.description || "Projeto desenvolvido e publicado no GitHub.",
+        125,
+    );
+    const imagem = repositorio.configuracao.imagem?.trim();
+    const deployLink = repositorio.homepage
+        ? `
+            <a
+                href="${escapeHTML(repositorio.homepage)}"
+                class="featured-card__link"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Abrir deploy de ${escapeHTML(repositorio.name)}"
+            >
+                Deploy ↗
+            </a>
+        `
+        : "";
+
+    article.className = "featured-card";
+
+    if (imagem) {
+        try {
+            const imageUrl = new URL(imagem);
+
+            if (!["http:", "https:"].includes(imageUrl.protocol)) {
+                throw new Error("A capa precisa usar uma URL HTTP ou HTTPS.");
+            }
+
+            const safeImageUrl = imageUrl.href.replaceAll('"', "%22");
+            article.classList.add("has-cover");
+            article.style.setProperty(
+                "--featured-cover",
+                `url("${safeImageUrl}")`,
+            );
+        } catch (error) {
+            console.warn(
+                `A imagem de capa de ${repositorio.name} não é uma URL válida.`,
+                error,
+            );
+        }
+    }
+
+    article.innerHTML = `
+        <div class="featured-card__content">
+            <div class="featured-card__heading">
+                <span class="featured-card__index">
+                    Projeto em destaque · ${String(index + 1).padStart(2, "0")}
+                </span>
+                <div class="featured-card__visual" aria-hidden="true">
                     <img
-                        src="${perfil.avatar_url}"
-                        alt="${perfil.name}"
+                        src="${getLanguageIcon(linguagem)}"
+                        alt=""
+                        width="34"
+                        height="34"
+                    />
+                </div>
+            </div>
+            <h3>${escapeHTML(formatarNome(repositorio.name))}</h3>
+            <p>${escapeHTML(descricao)}</p>
+
+            <div class="featured-card__footer">
+                <div class="project-tags">
+                    ${getTags(repositorio)}
+                </div>
+                <div class="featured-card__links">
+                    <a
+                        href="${escapeHTML(repositorio.html_url)}"
+                        class="featured-card__link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label="Abrir ${escapeHTML(repositorio.name)} no GitHub"
+                    >
+                        GitHub ↗
+                    </a>
+                    ${deployLink}
+                </div>
+            </div>
+        </div>
+    `;
+
+    return article;
+}
+
+async function getFeaturedProjects() {
+    if (!featuredContainer) return;
+
+    const repositorios = await Promise.all(
+        PROJETOS_PRINCIPAIS.map(getFeaturedRepository),
+    );
+
+    featuredContainer.replaceChildren(
+        ...repositorios.map(createFeaturedCard),
+    );
+}
+
+function renderRecentProject(repositorio) {
+    const linguagem = repositorio.language || "GitHub";
+    const descricao = truncar(
+        repositorio.description || "Projeto desenvolvido e publicado no GitHub.",
+        110,
+    );
+    const botaoDeploy = repositorio.homepage
+        ? `
+            <a
+                href="${escapeHTML(repositorio.homepage)}"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="botao-outline botao-sm"
+            >
+                Deploy ↗
+            </a>
+        `
+        : "";
+
+    return `
+        <div class="swiper-slide">
+            <article class="project-card">
+                <figure class="project-image">
+                    <img
+                        src="${getLanguageIcon(linguagem)}"
+                        alt="Ícone de ${escapeHTML(linguagem)}"
+                        width="76"
+                        height="76"
+                        loading="lazy"
                     />
                 </figure>
 
-                <!-- Conteúdo -->
-                <article class="about-content">
-                    <h2>Sobre mim</h2>
-
-                    <p>
-                        Sou Victor Pedro, desenvolvedor Full Stack em formação,
-                        estudante de Análise e Desenvolvimento de Sistemas na
-                        FIAP e participante do bootcamp Java Full Stack da
-                        Generation Brasil. Tenho conhecimentos em Java, Spring
-                        Boot, React, JavaScript, HTML, CSS e bancos de dados.
-                    </p>
-
-                    <p>
-                        Sou formado em Arquitetura e Urbanismo e construí minha
-                        experiência profissional atuando com organização de
-                        processos, análise de informações e busca por soluções
-                        mais eficientes. Atualmente, aplico essa experiência no
-                        desenvolvimento de projetos digitais simples,
-                        organizados e focados em resolver problemas reais.
-                    </p>
-
-                    <!-- Links -->
-                    <div class="about-buttons-data">
-                        <!-- Botões -->
-                        <div class="buttons-container">
-                            <a
-                                href="${perfil.html_url}"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="botao-outline"
-                            >
-                                GitHub
-                            </a>
-
-                            <a
-                                href="https://1drv.ms/f/c/a6367a07b7ba8450/IgCyatgzLrcITJIQ1kclud9TAU5VkyAiZi_yXXQQuiHHqTg?e=KzS8pl"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="botao-outline"
-                            >
-                                Currículo
-                            </a>
-
-                            <a
-                                href="https://onedrive.live.com/?cid=a6367a07b7ba8450&id=A6367A07B7BA8450%21sf7524f74dc3b43cea4f9ef83afa6b994&resid=A6367A07B7BA8450%21sf7524f74dc3b43cea4f9ef83afa6b994&ithint=folder&e=ogPO2u&migratedtospo=true&redeem=aHR0cHM6Ly8xZHJ2Lm1zL2YvYy9hNjM2N2EwN2I3YmE4NDUwL0lnQjBUMUwzTzl6T1E2VDU3NE92cHJtVUFVdkFHZHpsNUVoNnJNcmFzTWlnel9VP2U9b2dQTzJ1&v=validatepermission"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                class="botao-outline"
-                            >
-                                Certificados
-                            </a>
-                        </div>
-
-                        <!-- Dados -->
-                        <div class="data-container">
-                            <!-- Número de seguidores -->
-                            <div class="data-item">
-                                <span class="data-number"> ${perfil.followers} </span>
-
-                                <span class="data-label"> Seguidores </span>
-                            </div>
-
-                            <!-- Número de repositórios -->
-                            <div class="data-item">
-                                <span class="data-number"> ${perfil.public_repos} </span>
-
-                                <span class="data-label"> Repositórios </span>
-                            </div>
-                        </div>
+                <div class="project-content">
+                    <div class="project-kicker">
+                        <span>${escapeHTML(linguagem)}</span>
+                        <time datetime="${escapeHTML(repositorio.updated_at || "")}">
+                            ${escapeHTML(formatarData(repositorio.updated_at))}
+                        </time>
                     </div>
-                </article>
-        `;
-    } catch (error) {
-        console.error("Erro ao buscar dados no GitHub", error);
-    }
-}
 
-//Função para construção do carrossel com o Swiper
-async function getProjectsGitHub() {
-    try {
-        // 1 - Projetos que quero exibir primeiro
-        const projetosPrincipais = [
-            {
-                usuario: "victorpgms",
-                repositorio: "projeto-fintech",
-            },
-            {
-                usuario: "victorpgms",
-                repositorio: "challenge-care-plus-fiap",
-            },
-            {
-                usuario: "victorpgms",
-                repositorio: "blog-pessoal-spring",
-            },
-            {
-                usuario: "VidaConecta",
-                repositorio: "ConectaTravel",
-            },
-        ];
+                    <h3>${escapeHTML(formatarNome(repositorio.name))}</h3>
+                    <p>${escapeHTML(descricao)}</p>
 
-        // 2 - Busca os dados dos 4 projetos
-        const repositoriosPrincipais = await Promise.all(
-            projetosPrincipais.map(async (projeto) => {
-                const resposta = await fetch(
-                    `https://api.github.com/repos/${projeto.usuario}/${projeto.repositorio}`,
-                );
+                    <div class="project-tags">
+                        ${getTags(repositorio)}
+                    </div>
 
-                return await resposta.json();
-            }),
-        );
-
-        // 3 - Busca os projetos mais recentes
-        const respostaRecentes = await fetch(
-            "https://api.github.com/users/victorpgms/repos?sort=updated&direction=desc&per_page=20",
-        );
-
-        const repositoriosRecentes = await respostaRecentes.json();
-
-        // 4 - Remove dos recentes os projetos que já estão nos principais
-        const recentesSemDuplicados = repositoriosRecentes.filter(
-            (repositorio) =>
-                !repositoriosPrincipais.some(
-                    (principal) => principal.id === repositorio.id,
-                ),
-        );
-
-        // 5 - Pega apenas 8 recentes
-        const oitoRecentes = recentesSemDuplicados.slice(0, 8);
-
-        // 6 - Junta os 4 principais com os 8 recentes
-        const repositorios = [...repositoriosPrincipais, ...oitoRecentes];
-
-        swiperWraper.innerHTML = "";
-
-        // Ícones das linguagens
-        const linguagens = {
-            JavaScript: "javascript",
-            TypeScript: "typescript",
-            Python: "python",
-            Java: "java",
-            HTML: "html",
-            CSS: "css",
-            PHP: "php",
-            "C#": "csharp",
-            Go: "go",
-            Kotlin: "kotlin",
-            Swift: "swift",
-            C: "c",
-            "C++": "c_plus",
-            GitHub: "github",
-        };
-
-        repositorios.forEach((repositorio) => {
-            // Seleciona o nome da linguagem padrão do repositório
-            const linguagem = repositorio.language || "GitHub";
-
-            // Seleciona o ícone da linguagem padrão
-            const icone = linguagens[linguagem] ?? linguagens["GitHub"];
-
-            // Construir o link do ícone
-            const urlIcone = `./assets/icons/languages/${icone}.svg`;
-
-            // Formata o Nome do Repositório
-            const nomeFormatado = repositorio.name
-                .replace(/[-_]/g, " ") // Substitui hifens e underlines por espaços em branco
-                .replace(/[^a-zA-Z0-9\s]/g, "") // Remove Caracteres especiais
-                .replace(/\s+t[a-z0-9]+$/i, "") // Remove a identificação de turma
-                .toUpperCase(); // Converte a string em letras maiúsculas
-
-            // Função para truncar texto
-            // Se a descrição possuir mais de 100 carcateres
-            // seleciona os primeiros 97 e acrescenta '...' no final
-            // Senão retorna o mesmo texto
-            const truncar = (texto, limite) =>
-                texto.length > limite
-                    ? texto.substring(0, limite) + "..."
-                    : texto;
-
-            const descricao = repositorio.description
-                ? truncar(repositorio.description, 100)
-                : "Projeto desenvolvido no GitHub";
-
-            // Tags
-            const tags =
-                repositorio.topics?.length > 0
-                    ? repositorio.topics
-                          .slice(0, 3)
-                          .map((topic) => `<span class="tag">${topic}</span>`)
-                          .join("")
-                    : `<span class="tag">${linguagem}</span>`;
-
-            // Botão de Deploy
-            const botaoDeploy = repositorio.homepage
-                ? `<a href="${repositorio.homepage}" target="_blank" rel="noopener noreferrer" class="botao-outline botao-sm">Deploy</a>`
-                : "";
-
-            // Botões de ação
-            const botoesAcao = `
-                <div class="project-buttons">
-                    <a href="${repositorio.html_url}" target="_blank" rel="noopener noreferrer" class="botao botao-sm">GitHub</a>
-                    ${botaoDeploy}
+                    <div class="project-buttons">
+                        <a
+                            href="${escapeHTML(repositorio.html_url)}"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="botao botao-sm"
+                        >
+                            GitHub ↗
+                        </a>
+                        ${botaoDeploy}
+                    </div>
                 </div>
-                    `;
-
-            swiperWraper.innerHTML += `
-                    <div class="swiper-slide">
-                        <article class="project-card">
-                            <figure class="project-image">
-                                <img src="${urlIcone}" alt="${linguagem}" />
-                            </figure>
-
-                            <div class="project-content">
-                                <h3>${nomeFormatado}</h3>
-                                <p>${descricao}</p>
-
-                                <div class="project-tags">
-                                    ${tags}
-                                </div>
-
-                                ${botoesAcao}
-                            </div>
-                        </article>
-                    </div>
-                `;
-        });
-
-        iniciarSwiper();
-    } catch (error) {
-        console.error("Erro ao buscar os dados dos projetos no GitHub", error);
-    }
+            </article>
+        </div>
+    `;
 }
 
-function iniciarSwiper() {
-    new Swiper(".projects-swiper", {
+function initializeSwiper() {
+    const swiperElement = document.querySelector(".projects-swiper");
+    if (!swiperElement) return;
+
+    if (typeof window.Swiper !== "function") {
+        swiperElement.classList.add("is-static");
+        return;
+    }
+
+    projectsSwiper?.destroy(true, true);
+    projectsSwiper = new window.Swiper(".projects-swiper", {
         slidesPerView: 1,
-        slidesPerGroup: 1,
-        spaceBetween: 24,
-        centeredSlides: false,
-        loop: false,
-        rewind: true,
+        spaceBetween: 16,
+        speed: reduceMotion.matches ? 0 : 550,
         watchOverflow: true,
-
+        grabCursor: true,
         breakpoints: {
-            0: {
-                slidesPerView: 1,
-                slidesPerGroup: 1,
-                spaceBetween: 16,
-            },
-
-            769: {
+            640: {
                 slidesPerView: 2,
-                slidesPerGroup: 1,
-                spaceBetween: 24,
+                spaceBetween: 18,
             },
-
-            1025: {
+            1024: {
                 slidesPerView: 3,
-                slidesPerGroup: 1,
-                spaceBetween: 32,
+                spaceBetween: 20,
             },
         },
-
         navigation: {
             nextEl: ".swiper-button-next",
             prevEl: ".swiper-button-prev",
         },
-
         pagination: {
             el: ".swiper-pagination",
             clickable: true,
-            dynamicBullets: true,
         },
-
-        autoplay: {
-            delay: 5000,
-            pauseOnMouseEnter: true,
-            disableOnInteraction: false,
+        keyboard: {
+            enabled: true,
         },
-
-        grabCursor: true,
-        slidesOffsetBefore: 0,
-        slidesOffsetAfter: 0,
+        a11y: {
+            enabled: true,
+            prevSlideMessage: "Projeto anterior",
+            nextSlideMessage: "Próximo projeto",
+            paginationBulletMessage: "Ir para o projeto {{index}}",
+        },
     });
 }
 
-formulario.addEventListener("submit", function (event) {
-    event.preventDefault();
+async function getRecentProjects() {
+    if (!swiperWrapper) return;
 
-    document
-        .querySelectorAll("form span")
-        .forEach((span) => (span.innerHTML = ""));
+    try {
+        const repositorios = await fetchGitHub(
+            `https://api.github.com/users/${GITHUB_USER}/repos?sort=updated&direction=desc&per_page=30`,
+        );
+        const nomesPrincipais = new Set(
+            PROJETOS_PRINCIPAIS.map(
+                (projeto) =>
+                    `${projeto.usuario}/${projeto.repositorio}`.toLowerCase(),
+            ),
+        );
+        const recentes = repositorios
+            .filter(
+                (repositorio) =>
+                    !nomesPrincipais.has(repositorio.full_name.toLowerCase()),
+            )
+            .slice(0, MAX_PROJETOS_RECENTES);
 
-    let isValid = true;
+        if (!recentes.length) {
+            throw new Error("Nenhum repositório recente foi encontrado.");
+        }
 
-    const nome = document.querySelector("#nome");
-    const erroNome = document.querySelector("#erro-nome");
-
-    if (nome.value.trim().length < 3) {
-        erroNome.innerHTML = "O nome deve ter no mínimo 3 caracteres";
-        if (isValid) nome.focus();
-        isValid = false;
+        swiperWrapper.innerHTML = recentes.map(renderRecentProject).join("");
+        initializeSwiper();
+    } catch (error) {
+        console.warn("Os projetos recentes não foram carregados.", error);
+        swiperWrapper.innerHTML = `
+            <div class="swiper-slide">
+                <div class="empty-state">
+                    Os projetos recentes estão descansando por um instante.
+                    Você pode encontrá-los diretamente no
+                    <a
+                        href="https://github.com/${GITHUB_USER}?tab=repositories"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="text-link"
+                    >
+                        GitHub ↗
+                    </a>
+                </div>
+            </div>
+        `;
+        initializeSwiper();
     }
+}
 
-    const email = document.querySelector("#email");
-    const erroEmail = document.querySelector("#erro-email");
+function setFieldError(field, errorElement, message) {
+    field.setAttribute("aria-invalid", message ? "true" : "false");
+    errorElement.textContent = message;
+}
 
-    if (!email.value.trim().match(emailRegex)) {
-        erroEmail.innerHTML = "Digite um endereço de e-mail válido";
-        if (isValid) email.focus();
-        isValid = false;
-    }
+function initializeForm() {
+    if (!formulario) return;
 
-    const assunto = document.querySelector("#assunto");
-    const erroAssunto = document.querySelector("#erro-assunto");
+    const fields = {
+        nome: {
+            input: formulario.querySelector("#nome"),
+            error: formulario.querySelector("#erro-nome"),
+        },
+        email: {
+            input: formulario.querySelector("#email"),
+            error: formulario.querySelector("#erro-email"),
+        },
+        assunto: {
+            input: formulario.querySelector("#assunto"),
+            error: formulario.querySelector("#erro-assunto"),
+        },
+        mensagem: {
+            input: formulario.querySelector("#mensagem"),
+            error: formulario.querySelector("#erro-mensagem"),
+        },
+    };
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 
-    if (assunto.value.trim().length < 5) {
-        erroAssunto.innerHTML = "O assunto deve ter no mínimo 5 caracteres";
-        if (isValid) assunto.focus();
-        isValid = false;
-    }
+    Object.values(fields).forEach(({ input, error }) => {
+        input.addEventListener("input", () => setFieldError(input, error, ""));
+    });
 
-    const mensagem = document.querySelector("#mensagem");
-    const erroMensagem = document.querySelector("#erro-mensagem");
+    formulario.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-    if (mensagem.value.trim().length === 0) {
-        erroMensagem.innerHTML = "A mensagem não pode ser vazia";
-        if (isValid) mensagem.focus();
-        isValid = false;
-    }
+        let firstInvalidField = null;
 
-    if (isValid) {
+        Object.values(fields).forEach(({ input, error }) => {
+            setFieldError(input, error, "");
+        });
+
+        if (fields.nome.input.value.trim().length < 3) {
+            setFieldError(
+                fields.nome.input,
+                fields.nome.error,
+                "Digite um nome com pelo menos 3 caracteres.",
+            );
+            firstInvalidField ||= fields.nome.input;
+        }
+
+        if (!emailRegex.test(fields.email.input.value.trim())) {
+            setFieldError(
+                fields.email.input,
+                fields.email.error,
+                "Digite um endereço de e-mail válido.",
+            );
+            firstInvalidField ||= fields.email.input;
+        }
+
+        if (fields.assunto.input.value.trim().length < 5) {
+            setFieldError(
+                fields.assunto.input,
+                fields.assunto.error,
+                "Conte o assunto em pelo menos 5 caracteres.",
+            );
+            firstInvalidField ||= fields.assunto.input;
+        }
+
+        if (fields.mensagem.input.value.trim().length < 10) {
+            setFieldError(
+                fields.mensagem.input,
+                fields.mensagem.error,
+                "Escreva uma mensagem com pelo menos 10 caracteres.",
+            );
+            firstInvalidField ||= fields.mensagem.input;
+        }
+
+        if (firstInvalidField) {
+            firstInvalidField.focus();
+            return;
+        }
+
         const submitButton = formulario.querySelector('button[type="submit"]');
         submitButton.disabled = true;
-        submitButton.textContent = "Enviando...";
-
+        submitButton.textContent = "Enviando…";
         formulario.submit();
-    }
-});
+    });
+}
 
-getAboutGithub();
-getProjectsGitHub();
+function initializePage() {
+    initializeTheme();
+    initializeInteractiveBackground();
+    initializePointerTrail();
+    initializeHeader();
+    initializeForm();
+
+    const currentYear = document.querySelector("#current-year");
+    if (currentYear) currentYear.textContent = new Date().getFullYear();
+
+    getAboutGitHub();
+    getFeaturedProjects();
+    getRecentProjects();
+}
+
+initializePage();

@@ -14,7 +14,7 @@
 
 O **Projeto Portfólio Pessoal** é um site profissional desenvolvido com **HTML, CSS e JavaScript**, criado para apresentar minha trajetória, meus projetos, informações profissionais e formas de contato de maneira clara, interativa e responsiva.
 
-O projeto possui uma identidade visual personalizada em **tons de azul**, além de elementos gráficos, animações e uma ilustração desenvolvida especialmente para o portfólio.
+O projeto possui uma identidade visual contemporânea e editorial, com superfícies translúcidas, temas claro e escuro, animações sutis e uma ilustração desenvolvida especialmente para o portfólio.
 
 A aplicação também consome dados da **API do GitHub**, permitindo carregar automaticamente informações do perfil e dos repositórios.
 
@@ -40,12 +40,14 @@ A aplicação também consome dados da **API do GitHub**, permitindo carregar au
     - Número de seguidores
     - Número de repositórios públicos
     - Informações dos projetos
-- Exibição de **12 projetos** no portfólio:
-    - 4 projetos principais definidos manualmente
-    - 8 repositórios recentes carregados automaticamente pelo GitHub
-- Identificação visual dos projetos em destaque
+- Exibição de projetos em duas áreas independentes:
+    - 4 projetos principais definidos em um único bloco de configuração
+    - 9 repositórios recentes carregados automaticamente pelo GitHub
+- Suporte a imagens do **ImageKit** nos projetos em destaque
 - Remoção automática de projetos duplicados entre os destaques e os repositórios recentes
-- Exibição dos projetos em **carrossel responsivo** utilizando **Swiper.js**
+- Grade editorial para os destaques e **carrossel responsivo** para os projetos recentes utilizando **Swiper.js**
+- Alternância entre modo claro e escuro com preferência salva no navegador
+- Background interativo com mouse, caneta ou toque
 - Exibição dinâmica de:
     - Linguagem principal
     - Tecnologias/tópicos do repositório
@@ -153,14 +155,16 @@ O site será aberto no navegador e poderá ser executado localmente.
 ## Diferenciais do Projeto
 
 - Layout totalmente **responsivo**
-- Identidade visual personalizada em **tons de azul**
+- Identidade visual contemporânea com **modo claro e escuro**
 - Interface adaptada e personalizada a partir da estrutura inicial proposta durante o curso
 - Ilustração e elementos visuais próprios
 - Integração dinâmica com a **API do GitHub**
 - Seleção de **projetos em destaque**
+- Capas dos destaques configuráveis por URL do **ImageKit**
 - Atualização automática dos projetos recentes
 - Prevenção de projetos duplicados na listagem
 - Carrossel responsivo com **Swiper.js**
+- Background responsivo à posição do ponteiro ou toque
 - Animações e transições suaves
 - Formulário funcional com validações em JavaScript
 - Envio automático de mensagens através do **FormSubmit**

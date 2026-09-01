@@ -1,73 +1,121 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
     <head>
-        <!-- Fontes do Google -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-        <!-- Fonte do Google - Poppins -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
-            rel="stylesheet"
-        />
-
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="theme-color" content="#f7f7f5" />
 
-        <!-- CSS principal -->
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
+        />
         <link rel="stylesheet" href="./assets/css/styles.css" />
+        <link
+            rel="icon"
+            href="./assets/img/favicon.svg?v=2"
+            type="image/svg+xml"
+        />
 
-        <!-- Favicon -->
-        <link rel="icon" href="./assets/img/icone_pg_vpgms.png" />
+        <script>
+            (() => {
+                try {
+                    const savedTheme = localStorage.getItem("portfolio-theme");
+                    const preferredTheme = window.matchMedia(
+                        "(prefers-color-scheme: dark)",
+                    ).matches
+                        ? "dark"
+                        : "light";
 
-        <title>Mensagem enviada - Portfólio</title>
+                    document.documentElement.dataset.theme =
+                        savedTheme || preferredTheme;
+                } catch (error) {
+                    document.documentElement.dataset.theme = "light";
+                }
+            })();
+        </script>
+
+        <title>Mensagem enviada | Victor Pedro</title>
     </head>
 
     <body>
-        <!-- CABEÇALHO DA PÁGINA-->
-        <header>
-            <div class="menu-content">
-                <!-- Titulo do cabeçalho -->
-                <a href="index.html" id="titulo">Victor Pedro</a>
-                <!--Menu de navegação-->
+        <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+        <div class="ambient-background" aria-hidden="true"></div>
 
-                <nav>
+        <header class="site-header">
+            <div class="menu-content">
+                <a href="./index.html#hero" id="titulo" aria-label="Ir para o início">
+                    <span class="brand-mark">VP</span>
+                    <span>Victor Pedro</span>
+                </a>
+
+                <nav class="main-nav" aria-label="Navegação principal">
                     <ul class="menu-list">
-                        <li><a href="index.html#hero">Início</a></li>
-                        <li><a href="index.html#about">Sobre</a></li>
-                        <li><a href="index.html#projects">Projetos</a></li>
-                        <li><a href="index.html#contact">Contatos</a></li>
+                        <li><a href="./index.html#hero">Início</a></li>
+                        <li><a href="./index.html#featured">Destaques</a></li>
+                        <li><a href="./index.html#about">Sobre</a></li>
+                        <li><a href="./index.html#projects">Projetos</a></li>
+                        <li><a href="./index.html#contact">Contato</a></li>
                     </ul>
                 </nav>
+
+                <button
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Ativar modo escuro"
+                    title="Alterar tema"
+                >
+                    <svg
+                        class="theme-icon theme-icon--sun"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                    <svg
+                        class="theme-icon theme-icon--moon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+                    </svg>
+                </button>
             </div>
         </header>
 
-        <!-- Seção Principal da Página (main) -->
-        <main>
-            <!-- Mensagem de Sucesso -->
+        <main id="main-content">
             <section class="success-container">
                 <article class="success-content">
                     <figure class="success-icon">
                         <img
                             src="./assets/img/success.svg"
-                            alt="Ilustração de sucesso"
-                            class="float-animation"
-                            width="20%"
+                            alt=""
+                            width="64"
+                            height="64"
                         />
                     </figure>
 
-                    <h1>E-mail enviado com Sucesso!</h1>
+                    <h1>Mensagem enviada com sucesso.</h1>
                     <h2>
-                        Obrigado por entrar em contato! <br />
-                        Logo mais retornarei sua mensagem.
+                        Obrigado por entrar em contato. Retornarei sua mensagem
+                        assim que possível.
                     </h2>
 
-                    <a class="botao" href="index.html">Voltar para o Início</a>
+                    <a class="botao" href="./index.html#hero">
+                        Voltar para o início
+                    </a>
                 </article>
             </section>
         </main>
 
-        <!-- RODAPÉ DA PÁGINA-->
-        <footer>Desenvolvido por Victor Pedro - 2026</footer>
+        <footer class="site-footer">
+            <a href="./index.html#hero" class="footer-brand">Victor Pedro</a>
+            <p>Design, código e intenção.</p>
+            <span>© <span id="current-year">2026</span></span>
+        </footer>
+
+        <script src="./assets/js/script.js" defer></script>
     </body>
 </html>
