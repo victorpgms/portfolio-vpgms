@@ -1,5 +1,7 @@
 const GITHUB_USER = "victorpgms";
 const MAX_PROJETOS_RECENTES = 9;
+const GITHUB_CACHE_TTL = 15 * 60 * 1000;
+const GITHUB_CACHE_PREFIX = "portfolio-github-cache:";
 
 /*
  * CONFIGURAÇÃO DOS PRINCIPAIS PROJETOS
@@ -111,18 +113,60 @@ function formatarData(data) {
         .replace(".", "");
 }
 
-async function fetchGitHub(url) {
-    const resposta = await fetch(url, {
-        headers: {
-            Accept: "application/vnd.github+json",
-        },
-    });
+function getGitHubCache(url) {
+    try {
+        const cachedValue = localStorage.getItem(`${GITHUB_CACHE_PREFIX}${url}`);
+        if (!cachedValue) return null;
 
-    if (!resposta.ok) {
-        throw new Error(`GitHub respondeu com status ${resposta.status}`);
+        const cached = JSON.parse(cachedValue);
+        if (!cached?.timestamp || !cached?.data) return null;
+
+        return {
+            data: cached.data,
+            isFresh: Date.now() - cached.timestamp < GITHUB_CACHE_TTL,
+        };
+    } catch (error) {
+        return null;
     }
+}
 
-    return resposta.json();
+function setGitHubCache(url, data) {
+    try {
+        localStorage.setItem(
+            `${GITHUB_CACHE_PREFIX}${url}`,
+            JSON.stringify({ timestamp: Date.now(), data }),
+        );
+    } catch (error) {
+        console.warn("Não foi possível armazenar o cache do GitHub.");
+    }
+}
+
+async function fetchGitHub(url) {
+    const cached = getGitHubCache(url);
+    if (cached?.isFresh) return cached.data;
+
+    try {
+        const resposta = await fetch(url, {
+            headers: {
+                Accept: "application/vnd.github+json",
+            },
+        });
+
+        if (!resposta.ok) {
+            throw new Error(`GitHub respondeu com status ${resposta.status}`);
+        }
+
+        const data = await resposta.json();
+        setGitHubCache(url, data);
+        return data;
+    } catch (error) {
+        if (cached?.data) {
+            console.warn("Usando dados salvos do GitHub.", error);
+            return cached.data;
+        }
+
+        throw error;
+    }
 }
 
 function updateThemeButton(theme) {
@@ -159,40 +203,6 @@ function initializeTheme() {
             console.warn("Não foi possível salvar a preferência de tema.");
         }
     });
-}
-
-function updateBackgroundPosition(clientX, clientY) {
-    const x = Math.round((clientX / window.innerWidth) * 100);
-    const y = Math.round((clientY / window.innerHeight) * 100);
-
-    document.documentElement.style.setProperty("--pointer-x", `${x}%`);
-    document.documentElement.style.setProperty("--pointer-y", `${y}%`);
-}
-
-function initializeInteractiveBackground() {
-    if (reduceMotion.matches) return;
-
-    let frameId;
-
-    const scheduleUpdate = (clientX, clientY) => {
-        window.cancelAnimationFrame(frameId);
-        frameId = window.requestAnimationFrame(() => {
-            updateBackgroundPosition(clientX, clientY);
-        });
-    };
-
-    window.addEventListener("pointermove", (event) => {
-        scheduleUpdate(event.clientX, event.clientY);
-    });
-
-    window.addEventListener(
-        "touchmove",
-        (event) => {
-            const touch = event.touches[0];
-            if (touch) scheduleUpdate(touch.clientX, touch.clientY);
-        },
-        { passive: true },
-    );
 }
 
 function initializePointerTrail() {
@@ -273,6 +283,55 @@ function initializeHeader() {
 
     updateHeader();
     window.addEventListener("scroll", updateHeader, { passive: true });
+}
+
+function initializeNavigation() {
+    const header = document.querySelector(".site-header");
+    const navigation = document.querySelector("#main-navigation");
+    const navigationToggle = document.querySelector(".nav-toggle");
+
+    if (!header || !navigation || !navigationToggle) return;
+
+    const closeNavigation = ({ restoreFocus = false } = {}) => {
+        header.classList.remove("menu-open");
+        navigationToggle.setAttribute("aria-expanded", "false");
+        navigationToggle.setAttribute("aria-label", "Abrir menu");
+
+        if (restoreFocus) navigationToggle.focus();
+    };
+
+    navigationToggle.addEventListener("click", () => {
+        const willOpen = !header.classList.contains("menu-open");
+        header.classList.toggle("menu-open", willOpen);
+        navigationToggle.setAttribute("aria-expanded", String(willOpen));
+        navigationToggle.setAttribute(
+            "aria-label",
+            willOpen ? "Fechar menu" : "Abrir menu",
+        );
+    });
+
+    navigation.addEventListener("click", (event) => {
+        if (event.target.closest("a")) closeNavigation();
+    });
+
+    document.addEventListener("click", (event) => {
+        if (!header.contains(event.target)) closeNavigation();
+    });
+
+    document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && header.classList.contains("menu-open")) {
+            closeNavigation({ restoreFocus: true });
+        }
+    });
+
+    const mobileNavigation = window.matchMedia("(max-width: 52rem)");
+    const handleBreakpointChange = () => closeNavigation();
+
+    if (typeof mobileNavigation.addEventListener === "function") {
+        mobileNavigation.addEventListener("change", handleBreakpointChange);
+    } else {
+        mobileNavigation.addListener(handleBreakpointChange);
+    }
 }
 
 async function getAboutGitHub() {
@@ -689,9 +748,9 @@ function initializeForm() {
 
 function initializePage() {
     initializeTheme();
-    initializeInteractiveBackground();
     initializePointerTrail();
     initializeHeader();
+    initializeNavigation();
     initializeForm();
 
     const currentYear = document.querySelector("#current-year");
