@@ -1,201 +1,345 @@
 <!doctype html>
-<html lang="pt-br">
+<html lang="pt-BR">
     <head>
-        <!-- Fontes do Google -->
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-
-        <!-- Fonte do Google - Poppins -->
-        <link
-            href="https://fonts.googleapis.com/css2?family=Poppins&display=swap"
-            rel="stylesheet"
-        />
-
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
         <meta name="author" content="Victor Pedro" />
-
         <meta
             name="description"
-            content="Construindo experiências digitais do back-end ao front-end. Explore meus projetos, conheça minhas habilidades e acompanhe minha evolução como desenvolvedor Full Stack."
+            content="Portfólio de Victor Pedro, desenvolvedor Full Stack. Projetos, experiência e soluções digitais desenvolvidas com tecnologia e propósito."
+        />
+        <meta name="robots" content="index, follow" />
+        <meta name="theme-color" content="#f7f7f5" />
+
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+            rel="stylesheet"
         />
 
-        <meta name="robots" content="follow" />
-
-        <!-- Favicon -->
-        <link rel="icon" href="./assets/img/icone_pg_vpgms.png" />
-
-        <!-- SWIPER CSS -->
+        <link
+            rel="icon"
+            href="./assets/img/favicon.svg?v=2"
+            type="image/svg+xml"
+        />
         <link
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css"
         />
-
-        <!-- CSS principal -->
         <link rel="stylesheet" href="./assets/css/styles.css" />
 
-        <title>Portfólio - Victor Pedro</title>
+        <script>
+            (() => {
+                try {
+                    const savedTheme = localStorage.getItem("portfolio-theme");
+                    const preferredTheme = window.matchMedia(
+                        "(prefers-color-scheme: dark)",
+                    ).matches
+                        ? "dark"
+                        : "light";
+
+                    document.documentElement.dataset.theme =
+                        savedTheme || preferredTheme;
+                } catch (error) {
+                    document.documentElement.dataset.theme = "light";
+                }
+            })();
+        </script>
+
+        <title>Victor Pedro | Desenvolvedor Full Stack</title>
     </head>
 
     <body>
-        <!-- ========================================
-         CABEÇALHO
-    ========================================= -->
+        <a class="skip-link" href="#main-content">Pular para o conteúdo</a>
+        <div class="ambient-background" aria-hidden="true"></div>
 
-        <header>
+        <header class="site-header">
             <div class="menu-content">
-                <!-- Título do cabeçalho -->
-                <a href="index.html" id="titulo"> Victor Pedro </a>
+                <a href="#hero" id="titulo" aria-label="Ir para o início">
+                    <span class="brand-mark">VP</span>
+                    <span>Victor Pedro</span>
+                </a>
 
-                <!-- Menu de navegação -->
-                <nav>
+                <nav class="main-nav" aria-label="Navegação principal">
                     <ul class="menu-list">
-                        <li>
-                            <a href="#hero">Início</a>
-                        </li>
-
-                        <li>
-                            <a href="#about">Sobre</a>
-                        </li>
-
-                        <li>
-                            <a href="#projects">Projetos</a>
-                        </li>
-
-                        <li>
-                            <a href="#contact">Contatos</a>
-                        </li>
+                        <li><a href="#hero">Início</a></li>
+                        <li><a href="#featured">Destaques</a></li>
+                        <li><a href="#about">Sobre</a></li>
+                        <li><a href="#projects">Projetos</a></li>
+                        <li><a href="#contact">Contato</a></li>
                     </ul>
                 </nav>
+
+                <button
+                    class="theme-toggle"
+                    type="button"
+                    aria-label="Ativar modo escuro"
+                    title="Alterar tema"
+                >
+                    <svg
+                        class="theme-icon theme-icon--sun"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <circle cx="12" cy="12" r="4"></circle>
+                        <path d="M12 2v2M12 20v2M4.93 4.93l1.42 1.42M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.42-1.42M17.66 6.34l1.41-1.41"></path>
+                    </svg>
+                    <svg
+                        class="theme-icon theme-icon--moon"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79Z"></path>
+                    </svg>
+                </button>
             </div>
         </header>
 
-        <!-- ========================================
-         CONTEÚDO PRINCIPAL
-    ========================================= -->
-
-        <main>
-            <!-- ========================================
-             HERO
-        ========================================= -->
-
+        <main id="main-content">
             <section id="hero" class="section-container hero-container">
-                <!-- Boas-vindas -->
                 <article class="hero-content">
-                    <span> 👋 Olá, eu sou o Victor! </span>
+                    <span class="eyebrow">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        Olá, eu sou o Victor
+                    </span>
 
-                    <h1>Desenvolvedor Full Stack</h1>
+                    <h1>
+                        Desenvolvo experiências digitais
+                        <span>vivas, úteis e bem construídas.</span>
+                    </h1>
 
                     <p>
-                        Código, criatividade e organização para transformar
-                        ideias em soluções digitais.
+                        Desenvolvedor Full Stack com olhar de arquiteto para
+                        transformar ideias complexas em experiências simples,
+                        organizadas e humanas.
                     </p>
 
-                    <div>
-                        <a href="#contact" class="botao"> Entre em contato </a>
-
-                        <a href="#about" class="botao-outline"> Saiba mais </a>
+                    <div class="buttons-container hero-actions">
+                        <a href="#featured" class="botao">Ver projetos</a>
+                        <a href="#contact" class="botao-outline">
+                            Vamos conversar
+                        </a>
                     </div>
+
+                    <ul class="hero-meta" aria-label="Áreas de atuação">
+                        <li>Java & Spring</li>
+                        <li>React & TypeScript</li>
+                        <li>SQL & Database </li>
+                    </ul>
                 </article>
 
-                <!-- Imagem -->
                 <figure class="hero-image">
+                    <div class="hero-image__halo" aria-hidden="true"></div>
                     <img
                         src="./assets/img/ilustracao_vpgms.png"
-                        alt="Imagem que representa o autor do site"
-                        class="float-animation"
+                        alt="Ilustração de Victor trabalhando em seu notebook"
+                        width="1524"
+                        height="967"
                     />
                 </figure>
             </section>
 
-            <!-- ========================================
-             SOBRE MIM
-        ========================================= -->
-
             <section
-                id="about"
-                class="section-container about-container"
-            ></section>
-
-            <!-- ========================================
-             PROJETOS
-        ========================================= -->
-
-            <section id="projects" class="section-container projects-container">
-                <h2>Meus Projetos</h2>
-
-                <!-- Swiper Container -->
-                <div class="swiper projects-swiper">
-                    <!-- Wrapper dos slides -->
-                    <div class="swiper-wrapper">
-                        <!-- Slide -->
+                id="featured"
+                class="section-container featured-container"
+            >
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Seleção em destaque</span>
+                        <h2>Principais projetos</h2>
                     </div>
+                    <p>
+                        Projetos que representam minha forma de pensar,
+                        construir e colaborar.
+                    </p>
+                </div>
 
-                    <!-- Botões de Navegação -->
-                    <div class="swiper-button-next"></div>
-                    <div class="swiper-button-prev"></div>
-
-                    <!-- Paginação -->
-                    <div class="swiper-pagination"></div>
+                <div
+                    id="featured-projects"
+                    class="featured-grid"
+                    aria-live="polite"
+                >
+                    <article class="featured-card skeleton-card"></article>
+                    <article class="featured-card skeleton-card"></article>
+                    <article class="featured-card skeleton-card"></article>
+                    <article class="featured-card skeleton-card"></article>
                 </div>
             </section>
 
-            <!-- ========================================
-             CONTATO
-        ========================================= -->
+            <section id="about" class="section-container about-container">
+                <div class="about-visual">
+                    <figure class="about-image">
+                        <img
+                            id="profile-avatar"
+                            src="https://github.com/victorpgms.png"
+                            alt="Foto de perfil de Victor Pedro"
+                            width="420"
+                            height="420"
+                        />
+                    </figure>
 
-            <section id="contact" class="section-container contact-container">
-                <!-- Informações de contato -->
-                <article class="contact-info">
-                    <h2>Vamos nos conectar</h2>
+                    <div class="profile-card">
+                        <span>Vivendo em</span>
+                        <strong>São Paulo, Brasil</strong>
+                    </div>
+                </div>
+
+                <article class="about-content">
+                    <span class="eyebrow">Um pouco sobre mim</span>
+                    <h2>Experiência que conecta lógica e criatividade.</h2>
 
                     <p>
-                        Estou aberto a projetos, oportunidades e boas conversas
-                        sobre tecnologia!
+                        Sou desenvolvedor Full Stack em formação, estudante de
+                        Análise e Desenvolvimento de Sistemas na FIAP e
+                        participante do bootcamp Java Full Stack da Generation
+                        Brasil.
                     </p>
 
-                    <!-- Redes sociais -->
+                    <p>
+                        Minha formação em Arquitetura e Urbanismo fortaleceu meu
+                        olhar para organização, análise e resolução de
+                        problemas. Hoje aplico essa experiência em produtos
+                        digitais simples, consistentes e focados em necessidades
+                        reais.
+                    </p>
+
+                    <ul class="skill-list" aria-label="Principais tecnologias">
+                        <li>Java</li>
+                        <li>Spring Boot</li>
+                        <li>React</li>
+                        <li>TypeScript</li>
+                        <li>SQL</li>
+                    </ul>
+
+                    <div class="about-footer">
+                        <div class="buttons-container">
+                            <a
+                                id="github-profile-link"
+                                href="https://github.com/victorpgms"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="botao-outline"
+                            >
+                                GitHub <span aria-hidden="true">↗</span>
+                            </a>
+                            <a
+                                href="https://1drv.ms/f/c/a6367a07b7ba8450/IgCyatgzLrcITJIQ1kclud9TAU5VkyAiZi_yXXQQuiHHqTg?e=KzS8pl"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="text-link"
+                            >
+                                Ver currículo <span aria-hidden="true">↗</span>
+                            </a>
+                        </div>
+
+                        <div class="data-container" aria-label="Dados do GitHub">
+                            <div class="data-item">
+                                <span id="repositories-count" class="data-number">—</span>
+                                <span class="data-label">Repositórios</span>
+                            </div>
+                            <div class="data-item">
+                                <span id="followers-count" class="data-number">—</span>
+                                <span class="data-label">Seguidores</span>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section id="projects" class="section-container projects-container">
+                <div class="section-heading">
+                    <div>
+                        <span class="eyebrow">Em movimento</span>
+                        <h2>Últimos projetos</h2>
+                    </div>
+                    <p>
+                        Repositórios recentes, atualizados automaticamente pelo
+                        GitHub.
+                    </p>
+                </div>
+
+                <div class="swiper projects-swiper">
+                    <div class="swiper-wrapper" aria-live="polite">
+                        <div class="swiper-slide">
+                            <article class="project-card skeleton-card"></article>
+                        </div>
+                        <div class="swiper-slide">
+                            <article class="project-card skeleton-card"></article>
+                        </div>
+                        <div class="swiper-slide">
+                            <article class="project-card skeleton-card"></article>
+                        </div>
+                    </div>
+
+                    <div class="swiper-controls">
+                        <div class="swiper-pagination"></div>
+                        <div class="swiper-navigation">
+                            <button
+                                class="swiper-button-prev"
+                                type="button"
+                                aria-label="Projeto anterior"
+                            ></button>
+                            <button
+                                class="swiper-button-next"
+                                type="button"
+                                aria-label="Próximo projeto"
+                            ></button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="contact" class="section-container contact-container">
+                <article class="contact-info">
+                    <span class="eyebrow">Vamos construir algo?</span>
+                    <h2>Uma boa conversa pode ser o início de um grande projeto.</h2>
+                    <p>
+                        Estou aberto a oportunidades, colaborações e conversas
+                        sobre tecnologia, produtos e ideias que merecem ganhar
+                        forma.
+                    </p>
+
                     <div class="social-container">
-                        <!-- LinkedIn -->
                         <a
                             href="https://www.linkedin.com/in/victor-pgms/"
-                            class="social-icon"
-                            aria-label="LinkedIn"
+                            class="social-link"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             <img
                                 src="./assets/icons/social/linkedin.svg"
-                                alt="Link para o LinkedIn do autor"
+                                alt=""
+                                width="24"
+                                height="24"
                             />
+                            <span>LinkedIn</span>
+                            <span aria-hidden="true">↗</span>
                         </a>
-
-                        <!-- GitHub -->
                         <a
                             href="https://github.com/victorpgms"
-                            class="social-icon"
-                            aria-label="GitHub"
+                            class="social-link"
                             target="_blank"
                             rel="noopener noreferrer"
                         >
                             <img
                                 src="./assets/icons/social/github.svg"
-                                alt="Link para o GitHub do autor"
+                                alt=""
+                                width="24"
+                                height="24"
                             />
+                            <span>GitHub</span>
+                            <span aria-hidden="true">↗</span>
                         </a>
                     </div>
                 </article>
 
-                <!-- ========================================
-                 FORMULÁRIO
-            ========================================= -->
-
-                <!-- Formulário de Contato -->
                 <form
                     id="formulario"
                     action="https://formsubmit.co/0b08eabbcf8d446eba50076e8a9daae0"
                     method="POST"
+                    novalidate
                 >
                     <input
                         type="hidden"
@@ -203,70 +347,85 @@
                         value="https://victorpgms.github.io/portfolio-vpgms/success.html"
                     />
                     <input type="hidden" name="_captcha" value="false" />
-                    <!-- Nome -->
-                    <label for="nome"> Nome </label>
 
-                    <input
-                        id="nome"
-                        name="nome"
-                        type="text"
-                        placeholder="Digite o seu nome"
-                    />
+                    <div class="form-heading">
+                        <h3>Conte-me sobre sua ideia</h3>
+                        <p>Responderei assim que possível.</p>
+                    </div>
 
-                    <span id="erro-nome"></span>
+                    <div class="form-row">
+                        <div class="form-field">
+                            <label for="nome">Nome</label>
+                            <input
+                                id="nome"
+                                name="nome"
+                                type="text"
+                                placeholder="Como posso te chamar?"
+                                autocomplete="name"
+                                aria-describedby="erro-nome"
+                                required
+                            />
+                            <span id="erro-nome" class="form-error" role="alert"></span>
+                        </div>
 
-                    <!-- E-mail -->
-                    <label for="email"> E-mail </label>
+                        <div class="form-field">
+                            <label for="email">E-mail</label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                placeholder="voce@exemplo.com"
+                                autocomplete="email"
+                                aria-describedby="erro-email"
+                                required
+                            />
+                            <span id="erro-email" class="form-error" role="alert"></span>
+                        </div>
+                    </div>
 
-                    <input
-                        id="email"
-                        name="email"
-                        type="email"
-                        placeholder="Digite o seu e-mail"
-                    />
+                    <div class="form-field">
+                        <label for="assunto">Assunto</label>
+                        <input
+                            id="assunto"
+                            name="assunto"
+                            type="text"
+                            placeholder="Sobre o que vamos conversar?"
+                            aria-describedby="erro-assunto"
+                            required
+                        />
+                        <span id="erro-assunto" class="form-error" role="alert"></span>
+                    </div>
 
-                    <span id="erro-email"></span>
+                    <div class="form-field">
+                        <label for="mensagem">Mensagem</label>
+                        <textarea
+                            id="mensagem"
+                            name="mensagem"
+                            rows="5"
+                            placeholder="Compartilhe os detalhes, objetivos e contexto."
+                            aria-describedby="erro-mensagem"
+                            required
+                        ></textarea>
+                        <span id="erro-mensagem" class="form-error" role="alert"></span>
+                    </div>
 
-                    <!-- Assunto -->
-                    <label for="assunto"> Assunto </label>
-
-                    <input
-                        id="assunto"
-                        name="assunto"
-                        type="text"
-                        placeholder="Digite o assunto"
-                    />
-
-                    <span id="erro-assunto"></span>
-
-                    <!-- Mensagem -->
-                    <label for="mensagem"> Mensagem </label>
-
-                    <textarea
-                        id="mensagem"
-                        name="mensagem"
-                        placeholder="Digite a sua mensagem"
-                    ></textarea>
-
-                    <span id="erro-mensagem"></span>
-
-                    <!-- Botão -->
-                    <button class="botao" type="submit">Enviar mensagem</button>
+                    <button class="botao submit-button" type="submit">
+                        Enviar mensagem <span aria-hidden="true">↗</span>
+                    </button>
                 </form>
             </section>
         </main>
 
-        <!-- ========================================
-         RODAPÉ
-    ========================================= -->
+        <footer class="site-footer">
+            <a href="#hero" class="footer-brand">Victor Pedro</a>
+            <p>Design, código e intenção.</p>
+            <span>© <span id="current-year">2026</span></span>
+        </footer>
 
-        <footer>Desenvolvido por Victor Pedro - 2026</footer>
-
-        <!-- SWIPER JS -->
-        <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-
-        <!-- JavaScript -->
-        <script src="./assets/js/script.js"></script>
-
+        <script
+            src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"
+            defer
+        ></script>
+        <script src="./assets/js/script.js" defer></script>
     </body>
 </html>

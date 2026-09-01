@@ -79,3 +79,6 @@ build/
  
 # Arquivos de configuração local
 config.local.js
+
+# Guia pessoal de manutenção do portfólio
+GUIA_PERSONALIZACAO_LOCAL.md
