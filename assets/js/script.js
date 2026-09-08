@@ -3,13 +3,7 @@ const MAX_PROJETOS_RECENTES = 9;
 const GITHUB_CACHE_TTL = 15 * 60 * 1000;
 const GITHUB_CACHE_PREFIX = "portfolio-github-cache:";
 
-/*
- * CONFIGURAÇÃO DOS PRINCIPAIS PROJETOS
- * -------------------------------------
- * Para trocar um destaque, altere somente "usuario" e "repositorio".
- * Quando você tiver a imagem no ImageKit, cole o link no campo "imagem".
- * Enquanto o campo estiver vazio, o card usa o fundo abstrato do portfólio.
- */
+
 const PROJETOS_PRINCIPAIS = [
     {
         usuario: "victorpgms",
@@ -18,8 +12,8 @@ const PROJETOS_PRINCIPAIS = [
     },
     {
         usuario: "VidaConecta",
-        repositorio: "ConectaLife_React",
-        imagem: "https://ik.imagekit.io/vpgms/BlogPessoal/projetos%20principais/Captura%20de%20tela%202026-08-31%20204446.png",
+        repositorio: "conectatravel_react",
+        imagem: "https://ik.imagekit.io/vpgms/VidaConecta/ConectaTravel/print-login.png",
     },
     {
         usuario: "victorpgms",
